@@ -16,6 +16,7 @@ body{margin:0;background:var(--bg);font:15px Arial,sans-serif;color:#17202b}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 button{border:0;border-radius:9px;padding:11px 14px;background:var(--blue);color:#fff;font-weight:700;font-size:14px}
 button.gray{background:#64748b}button.red{background:#b42318}button.green{background:#16834a}
+button:disabled{opacity:.55}
 label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
 input,textarea{font:inherit;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
 textarea{min-height:65px;resize:vertical}
@@ -57,33 +58,14 @@ th{text-align:center}td:nth-child(1){text-align:center}
 .note-photo-grid img{width:10cm;height:13cm;max-width:100%;object-fit:contain;border:1px solid #bbb;padding:2px}
 .history button{margin:4px}
 @page{size:A4 portrait;margin:10mm}
-@media print{
- html,body{background:#fff!important;margin:0!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
- .app{max-width:none;padding:0}
- .hide-print,.bar,.formcard,.historycard{display:none!important}
- .paper{padding:0;border-radius:0;margin:0;overflow:visible}
- .head{display:flex}
- .tablewrap{overflow:visible}
- table{min-width:0;font-size:11px;table-layout:fixed;width:100%}
- th,td{padding:5px;overflow-wrap:anywhere}
- .foot{display:flex}
- .signs img{width:150px;height:95px}
- .photo-sheet{break-before:page;page-break-before:always;margin:0}
- .photo-sheet[hidden]{display:none!important}
- .photo-sheet .note-photo-grid img{width:10cm;height:13cm;max-width:10cm;object-fit:contain;border:1px solid #999;padding:2px;break-inside:avoid;page-break-inside:avoid}
- .photo-entry{break-inside:avoid;page-break-inside:avoid}
-}
 @media(max-width:600px){
- .grid{grid-template-columns:1fr}
- .head{display:block}
- .recipient{margin-top:15px}
- .paper{padding:12px}
- .foot{display:block}
- .signs{margin-top:24px;text-align:right}
- .signs img{margin-right:0}
- .app{padding:8px}
+ .grid{grid-template-columns:1fr}.head{display:block}.recipient{margin-top:15px}
+ .paper{padding:12px}.foot{display:block}.signs{margin-top:24px;text-align:right}
+ .signs img{margin-right:0}.app{padding:8px}
 }
 </style>
+<!-- PDF generator: requires internet on first use -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -92,13 +74,12 @@ th{text-align:center}td:nth-child(1){text-align:center}
  <div class="actions">
   <button onclick="newNote()">Nota Baru</button>
   <button onclick="saveNote()" class="green">Simpan Nota</button>
-  <button onclick="printNota()">Cetak / PDF</button>
+  <button id="pdfButton" onclick="printNota()">Buat PDF / Bagikan</button>
   <button onclick="shareWA()" class="green">Bagikan WhatsApp</button>
   <button class="gray" onclick="showHistory()">Riwayat Nota</button>
  </div>
- <p class="muted">Untuk mencetak di iPhone, buka alamat aplikasi langsung melalui Safari. Data tersimpan di perangkat ini.</p>
+ <p class="muted">Tekan Buat PDF / Bagikan. Di iPhone pilih Simpan ke File, WhatsApp, AirDrop, atau Cetak.</p>
 </section>
-
 <section class="card formcard hide-print">
  <h3>Data Nota</h3>
  <div class="grid">
@@ -112,7 +93,6 @@ th{text-align:center}td:nth-child(1){text-align:center}
  <button onclick="addItem()">+ Tambah Barang</button>
  <div class="muted">Isi nama barang, kerusakan, perbaikan, dan biaya. Total dihitung otomatis.</div>
 </section>
-
 <section class="paper" id="paper">
  <div class="head">
   <div class="brand">
@@ -141,25 +121,21 @@ th{text-align:center}td:nth-child(1){text-align:center}
   </div>
  </div>
 </section>
-
 <section class="paper photo-sheet" id="photoSheet" hidden>
  <h2>LAMPIRAN FOTO BARANG — CV. DR Print</h2>
  <div class="photo-sheet-meta">No Nota Service: <b id="photoNumber"></b> &nbsp; | &nbsp; Tanggal: <b id="photoDate"></b><br>Kepada Yth.: <b id="photoCustomer"></b></div>
  <div id="printedPhotos" class="note-photos"></div>
 </section>
-
 <section class="card historycard hide-print" id="history" hidden>
  <h3>Riwayat Nota</h3><div id="historyList" class="history"></div>
 </section>
 </div>
-
 <script>
 const $=id=>document.getElementById(id);
 const fmt=n=>(Number(n)||0).toLocaleString('id-ID');
 function today(){let d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function autoNo(){let d=new Date(),s=d.getFullYear().toString().slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');return 'DRP-'+s+'-001'}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-
 function addItem(v={}){
  let d=document.createElement('div');d.className='item';d._photos=Array.isArray(v.photos)?v.photos.slice():[];
  d.innerHTML=`<div class="itemhead"><span>Barang / Jasa</span><button class="red" type="button">Hapus</button></div>
@@ -168,15 +144,13 @@ function addItem(v={}){
  <label>Perbaikan</label><textarea class="pr" placeholder="Uraian perbaikan">${esc(v.p||'')}</textarea>
  <label>Biaya (Rp)</label><input class="hr" type="number" min="0" value="${Number(v.h)||''}" placeholder="0">
  <label>Foto Barang (opsional)</label><input class="photo-input" type="file" accept="image/*,.heic,.heif" multiple>
- <div class="photo-preview"></div><div class="muted">Pilih foto dari galeri iPhone/Android atau gunakan kamera. Foto akan masuk ke lembar lampiran kedua.</div>`;
+ <div class="photo-preview"></div><div class="muted">Pilih foto dari galeri iPhone/Android. Foto masuk ke lembar lampiran.</div>`;
  d.querySelector('.itemhead button').onclick=()=>{d.remove();render()};
  d.querySelectorAll('.nm,.kr,.pr,.hr').forEach(x=>x.addEventListener('input',render));
  d.querySelector('.photo-input').addEventListener('change',async e=>{
   const files=Array.from(e.target.files||[]);
-  for(const file of files){
-   try{d._photos.push(await compressImage(file))}
-   catch(err){alert('Foto "'+file.name+'" tidak dapat dibaca oleh browser. Coba pilih foto JPG atau PNG dari galeri.')}
-  }
+  for(const file of files){try{d._photos.push(await compressImage(file))}
+   catch(err){alert('Foto "'+file.name+'" tidak dapat dibaca. Coba JPG atau PNG dari galeri.')}}
   e.target.value='';drawItemPhotos(d);render();
  });
  drawItemPhotos(d);$('items').append(d);render();
@@ -193,46 +167,36 @@ function drawItemPhotos(d){
 }
 function compressImage(file){
  return new Promise((resolve,reject)=>{
-  const reader=new FileReader();
-  reader.onerror=()=>reject(new Error('File tidak terbaca'));
+  const reader=new FileReader();reader.onerror=()=>reject(new Error('File tidak terbaca'));
   reader.onload=()=>{
-   const img=new Image();
-   img.onerror=()=>reject(new Error('Format gambar tidak didukung'));
+   const img=new Image();img.onerror=()=>reject(new Error('Format gambar tidak didukung'));
    img.onload=()=>{
     try{
      const scale=Math.min(1,1600/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
      const canvas=document.createElement('canvas');
      canvas.width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
      canvas.height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
-     const ctx=canvas.getContext('2d');
-     if(!ctx)return reject(new Error('Canvas tidak tersedia'));
+     const ctx=canvas.getContext('2d');if(!ctx)return reject(new Error('Canvas tidak tersedia'));
      ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
      ctx.drawImage(img,0,0,canvas.width,canvas.height);
      resolve(canvas.toDataURL('image/jpeg',.76));
     }catch(err){reject(err)}
-   };
-   img.src=reader.result;
-  };
-  reader.readAsDataURL(file);
+   };img.src=reader.result;
+  };reader.readAsDataURL(file);
  });
 }
 function getItems(){
- return [...$('items').children].map(x=>({
-  n:x.querySelector('.nm').value,k:x.querySelector('.kr').value,
-  p:x.querySelector('.pr').value,h:+x.querySelector('.hr').value||0,
-  photos:x._photos||[]
- }));
+ return [...$('items').children].map(x=>({n:x.querySelector('.nm').value,k:x.querySelector('.kr').value,
+  p:x.querySelector('.pr').value,h:+x.querySelector('.hr').value||0,photos:x._photos||[]}));
 }
 function render(){
  let rows=getItems(),sum=rows.reduce((a,x)=>a+x.h,0);
  $('pitems').innerHTML=rows.map((x,i)=>`<tr><td>${i+1}.</td><td>${esc(x.n)}</td><td>${esc(x.k).replace(/\n/g,'<br>')}</td><td>${esc(x.p).replace(/\n/g,'<br>')}</td><td style="text-align:right">Rp. ${fmt(x.h)}</td></tr>`).join('');
  $('ptotal').textContent=fmt(sum);$('pdate').textContent=$('date').value;
- $('pnumber').textContent=$('number').value;$('pcustomer').textContent=$('customer').value;
- $('paddress').textContent=$('address').value;
+ $('pnumber').textContent=$('number').value;$('pcustomer').textContent=$('customer').value;$('paddress').textContent=$('address').value;
  let withPhotos=rows.map((x,i)=>({x,i})).filter(z=>z.x.photos&&z.x.photos.length);
- $('photoSheet').hidden=!withPhotos.length;
- $('photoNumber').textContent=$('number').value;$('photoDate').textContent=$('date').value;
- $('photoCustomer').textContent=$('customer').value;
+ $('photoSheet').hidden=!withPhotos.length;$('photoNumber').textContent=$('number').value;
+ $('photoDate').textContent=$('date').value;$('photoCustomer').textContent=$('customer').value;
  $('printedPhotos').innerHTML=withPhotos.length?'<h4>Dokumentasi Foto Barang</h4>'+withPhotos.map(z=>`<div class="photo-entry"><b>${z.i+1}. ${esc(z.x.n||'Barang')}</b><div class="note-photo-grid">${z.x.photos.map(src=>`<img src="${src}" alt="Foto barang">`).join('')}</div></div>`).join(''):'';
 }
 ['date','number','customer','address'].forEach(id=>$(id).addEventListener('input',render));
@@ -242,38 +206,67 @@ function newNote(){
 }
 function collect(){return {date:$('date').value,number:$('number').value,customer:$('customer').value,address:$('address').value,items:getItems()}}
 function saveNote(){
- try{
-  let data=collect(),a=JSON.parse(localStorage.getItem('drnotes')||'[]'),i=a.findIndex(x=>x.number===data.number);
-  if(i>=0)a[i]=data;else a.unshift(data);
-  localStorage.setItem('drnotes',JSON.stringify(a));alert('Nota tersimpan di perangkat.');
- }catch(e){alert('Penyimpanan gagal. Jumlah/ukuran foto terlalu besar untuk penyimpanan browser. Kurangi foto lalu coba lagi.')}
+ try{let data=collect(),a=JSON.parse(localStorage.getItem('drnotes')||'[]'),i=a.findIndex(x=>x.number===data.number);
+  if(i>=0)a[i]=data;else a.unshift(data);localStorage.setItem('drnotes',JSON.stringify(a));alert('Nota tersimpan di perangkat.');
+ }catch(e){alert('Penyimpanan gagal. Kurangi jumlah/ukuran foto lalu coba lagi.')}
 }
 function showHistory(){
  let a=JSON.parse(localStorage.getItem('drnotes')||'[]');$('history').hidden=false;
  $('historyList').innerHTML=a.length?a.map((x,i)=>`<div class="item"><b>${esc(x.number)} — ${esc(x.customer)}</b><br>${esc(x.date)} · Rp ${fmt(x.items.reduce((s,v)=>s+v.h,0))}<br><button onclick="loadNote(${i})">Buka</button><button class="red" onclick="deleteNote(${i})">Hapus</button></div>`).join(''):'Belum ada nota tersimpan.';
 }
 function loadNote(i){
- let x=JSON.parse(localStorage.getItem('drnotes')||'[]')[i];
+ let x=JSON.parse(localStorage.getItem('drnotes')||'[]')[i];if(!x)return;
  $('date').value=x.date;$('number').value=x.number;$('customer').value=x.customer;$('address').value=x.address;
  $('items').innerHTML='';x.items.forEach(addItem);render();window.scrollTo({top:0,behavior:'smooth'});
 }
-function deleteNote(i){
- let a=JSON.parse(localStorage.getItem('drnotes')||'[]');a.splice(i,1);localStorage.setItem('drnotes',JSON.stringify(a));showHistory();
-}
+function deleteNote(i){let a=JSON.parse(localStorage.getItem('drnotes')||'[]');a.splice(i,1);localStorage.setItem('drnotes',JSON.stringify(a));showHistory()}
 function shareWA(){
  let rows=getItems(),msg=`NOTA SERVICE CV. DR Print\nNo: ${$('number').value}\nTanggal: ${$('date').value}\nKepada: ${$('customer').value}\n`+
  rows.map((x,i)=>`${i+1}. ${x.n}\nKerusakan: ${x.k}\nPerbaikan: ${x.p}\nRp ${fmt(x.h)}`).join('\n')+
  `\nTOTAL: Rp ${fmt(rows.reduce((s,x)=>s+x.h,0))}`;
- if(window.AndroidBridge){AndroidBridge.shareText(msg)}else{window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank')}
+ if(window.AndroidBridge){AndroidBridge.shareText(msg)}else{location.href='https://wa.me/?text='+encodeURIComponent(msg)}
 }
 async function printNota(){
-  // kode pembuatan PDF
+ const btn=$('pdfButton');btn.disabled=true;btn.textContent='Membuat PDF...';
+ try{
+  render();
+  if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan iPhone terhubung ke internet, lalu muat ulang aplikasi.');
+  const clone=document.createElement('div');
+  clone.style.cssText='width:190mm;background:#fff;color:#17202b;padding:0;margin:0;';
+  const paper=$('paper').cloneNode(true);paper.style.cssText='width:190mm;min-height:0;padding:0;margin:0;border-radius:0;overflow:visible;';
+  clone.appendChild(paper);
+  if(!$('photoSheet').hidden){
+   const photos=$('photoSheet').cloneNode(true);photos.hidden=false;
+   photos.style.cssText='width:190mm;padding:0;margin:0;border-radius:0;overflow:visible;page-break-before:always;break-before:page;';
+   clone.appendChild(photos);
+  }
+  const imgs=Array.from(clone.querySelectorAll('img'));
+  await Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;setTimeout(resolve,8000)})));
+  const safeNo=($('number').value||'DR-PRINT').replace(/[^a-z0-9_-]/gi,'_');
+  const filename='Nota-'+safeNo+'.pdf';
+  const worker=html2pdf().set({
+   margin:[10,10,10,10],filename,
+   image:{type:'jpeg',quality:.96},
+   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:900},
+   jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+   pagebreak:{mode:['css','legacy']}
+  }).from(clone);
+  const blob=await worker.outputPdf('blob');
+  const file=new File([blob],filename,{type:'application/pdf'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+   await navigator.share({files:[file],title:'Nota Service CV. DR PRINT'});
+  }else{
+   const url=URL.createObjectURL(blob),a=document.createElement('a');
+   a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+   alert('PDF berhasil dibuat. Jika tidak terunduh otomatis, buka Safari lalu gunakan menu Bagikan.');
+  }
+ }catch(err){
+  if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));
+ }finally{btn.disabled=false;btn.textContent='Buat PDF / Bagikan'}
 }
-
 $('date').value=today();$('number').value=autoNo();addItem();render();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
-$('date').value=today();$('number').value=autoNo();addItem();render();
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 </script>
 </body>
 </html>
