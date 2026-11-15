@@ -266,82 +266,12 @@ function shareWA(){
  `\nTOTAL: Rp ${fmt(rows.reduce((s,x)=>s+x.h,0))}`;
  if(window.AndroidBridge){AndroidBridge.shareText(msg)}else{window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank')}
 }
-function printNota(){
-  render();
-
-  if(window.AndroidBridge){
-    AndroidBridge.printNote();
-    return;
-  }
-
-  const paper = document.getElementById('paper');
-  const photoSheet = document.getElementById('photoSheet');
-
-  if(!paper){
-    alert('Area nota tidak ditemukan.');
-    return;
-  }
-
-  const printWindow = window.open('', '_blank');
-
-  if(!printWindow){
-    alert('Halaman cetak tidak dapat dibuka. Silakan buka aplikasi melalui Safari.');
-    return;
-  }
-
-  const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-    .map(el => el.outerHTML).join('\n');
-
-  const paperCopy = paper.cloneNode(true);
-  const photoCopy = photoSheet ? photoSheet.cloneNode(true) : null;
-
-  [paperCopy, photoCopy].filter(Boolean).forEach(box => {
-    box.querySelectorAll('img').forEach(img => {
-      img.src = new URL(img.getAttribute('src'), location.href).href;
-    });
-  });
-
-  printWindow.document.open();
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Cetak Nota DR PRINT</title>
-      ${styles}
-      <style>
-        body { background:white; margin:0; padding:15px; }
-        .print-action {
-          position:sticky; top:0; padding:12px;
-          background:#fff; text-align:center; z-index:9999;
-        }
-        .print-action button {
-          padding:12px 24px; font-size:17px;
-          background:#1769d2; color:white;
-          border:0; border-radius:8px;
-        }
-        @media print {
-          .print-action { display:none !important; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="print-action">
-        <button onclick="window.print()">CETAK NOTA</button>
-      </div>
-      <div id="printContent"></div>
-    </body>
-    </html>
-  `);
-  printWindow.document.close();
-
-  const content = printWindow.document.getElementById('printContent');
-  content.appendChild(paperCopy);
-
-  if(photoCopy && !photoCopy.hidden){
-    content.appendChild(photoCopy);
-  }
+async function printNota(){
+  // kode pembuatan PDF
 }
+
+$('date').value=today();$('number').value=autoNo();addItem();render();
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 $('date').value=today();$('number').value=autoNo();addItem();render();
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 </script>
