@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nota-dr-print-v4';
+const CACHE_NAME = 'nota-dr-print-v5';
 const CORE_FILES = ['./', './index.html', './manifest.webmanifest', './stempel_ttd_dr_print.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_FILES)));
