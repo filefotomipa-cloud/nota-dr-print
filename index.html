@@ -8,63 +8,60 @@
 <title>Nota Service - CV. DR Print</title>
 <style>
 :root{--blue:#123b70;--bg:#eef2f7}
-*{box-sizing:border-box}
+*{box-sizing:border-box;max-width:100%}
 body{margin:0;background:var(--bg);font:15px Arial,sans-serif;color:#17202b}
-.app{max-width:1000px;margin:auto;padding:14px}
+.app{max-width:900px;margin:auto;padding:14px}
 .bar,.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px #0000000c}
-.bar h1{font-size:20px;margin:0 0 12px}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.bar h1{font-size:20px;margin:0 0 12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
 button{border:0;border-radius:9px;padding:11px 14px;background:var(--blue);color:#fff;font-weight:700;font-size:14px}
-button.gray{background:#64748b}button.red{background:#b42318}button.green{background:#16834a}button:disabled{opacity:.55}
+button.gray{background:#64748b}button.red{background:#b42318}button.green{background:#16834a}
+button:disabled{opacity:.55}
 label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
 input,textarea{font:inherit;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
-textarea{min-height:65px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+textarea{min-height:65px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .item{border:1px solid #d6dde7;border-radius:10px;padding:12px;margin:10px 0}
-.photo-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.photo-preview img{width:82px;height:82px;object-fit:cover;border:1px solid #cbd5e1;border-radius:7px}
-.photo-chip{position:relative}.photo-chip button{position:absolute;right:-5px;top:-5px;padding:3px 6px;border-radius:50%;background:#b42318}
-.itemhead{display:flex;justify-content:space-between;align-items:center;font-weight:bold}.muted{font-size:12px;color:#64748b}
-.paper{position:relative;background:#fff;width:min(100%,190mm);min-height:277mm;margin:0 auto;padding:0;overflow:hidden;box-shadow:0 2px 15px #0002;font-family:Georgia,'Times New Roman',serif;color:#111}
-.paper-inner{position:relative;z-index:1;padding:4mm 0 0}
-.watermark{position:absolute;z-index:0;left:8%;top:35mm;width:84%;height:42mm;pointer-events:none;color:#e7e7e7;font:bold italic 54pt Arial,sans-serif;letter-spacing:2px;transform:rotate(-7deg);text-align:center}
-.watermark:after{content:"DR Print"}
-.head{display:grid;grid-template-columns:1fr 50mm;gap:8mm;align-items:start;min-height:27mm}
-.brand{min-width:0}.brand h2{font:bold 22pt Georgia,serif;text-decoration:underline;margin:0 0 2mm}
-.brand p{font:9.5pt/1.25 Georgia,serif;margin:0}
-.recipient{font:9.5pt/1.45 Georgia,serif;padding-top:10mm}
-.recipient .line{border-bottom:1px dotted #111;min-height:5mm;margin-bottom:1mm}
-.meta{font:10pt Georgia,serif;margin:3mm 0 1.5mm}
-.tablewrap{width:100%;overflow:visible}
-table{width:100%;border-collapse:collapse;table-layout:fixed;font:9.5pt/1.2 Arial,sans-serif;position:relative;z-index:1}
-th,td{border:1px solid #111;padding:1.5mm 1.6mm;vertical-align:top;overflow-wrap:anywhere}
+.photo-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.photo-preview img{width:82px;height:82px;object-fit:cover;border:1px solid #cbd5e1;border-radius:7px}
+.photo-chip{position:relative}
+.photo-chip button{position:absolute;right:-5px;top:-5px;padding:3px 6px;border-radius:50%;background:#b42318}
+.itemhead{display:flex;justify-content:space-between;align-items:center;font-weight:bold}
+.muted{font-size:12px;color:#64748b}
+.paper{position:relative;background:#fff;padding:10mm;border-radius:10px;overflow:hidden}.paper:before{content:"DR PRINT";position:absolute;z-index:0;left:50%;top:52%;transform:translate(-50%,-50%) rotate(-28deg);font:bold 54px Arial,sans-serif;letter-spacing:5px;color:rgba(18,59,112,.065);white-space:nowrap;pointer-events:none}.paper>*{position:relative;z-index:1}
+.head{display:flex;justify-content:space-between;gap:12mm;align-items:flex-start}
+.brand{flex:1;min-width:0}
+.brand h2{font:bold 25px Georgia,serif;letter-spacing:.1px;margin:0 0 10px}
+.brand p{font:14px/1.42 Georgia,serif;margin:4px 0}
+.recipient{min-width:48mm;max-width:55mm;font:14px/1.55 Georgia,serif}
+.meta{margin:15mm 0 9px;font:bold 16px Georgia,serif}
+.tablewrap{display:block;overflow:visible;width:100%;max-width:100%;min-width:0}
+table{display:table;width:100%!important;max-width:100%!important;min-width:0!important;border-collapse:collapse;table-layout:fixed!important;font:14px/1.35 Georgia,serif}
+th,td{border:1px solid #222;padding:9px 7px;vertical-align:top;overflow-wrap:anywhere}
 th{text-align:center;font-weight:bold}td:nth-child(1){text-align:center}
-.total{display:flex;justify-content:flex-end;align-items:stretch;gap:0;margin:0 0 1mm;font:bold 10pt Arial,sans-serif}
-.total-label{padding:2mm 3mm}.totalbox{border:1px solid #111;min-width:47mm;padding:2mm 2.5mm;display:flex;justify-content:space-between;gap:8mm}
-.foot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;align-items:start;margin-top:2mm;min-height:52mm;font:9.5pt Georgia,serif}
-.services{color:#123b70;font:bold 12pt Georgia,serif}.services small{display:block;color:#111;font:8.5pt/1.25 Georgia,serif;margin-top:1mm}
-.customer-sign{text-align:center;padding-top:20mm;font:9.5pt Georgia,serif}.customer-line{border-bottom:1px dotted #111;width:38mm;margin:18mm auto 0}
-.signs{text-align:center;font:9.5pt Georgia,serif}.signs img{display:block;margin:1mm auto 0;width:43mm;height:30mm;object-fit:contain}
-.bottom-logo{position:absolute;right:3mm;bottom:2mm;width:28mm;height:23mm;z-index:1;text-align:center}
-.bottom-logo .dr{font:bold italic 27pt Arial,sans-serif;color:#df2929;line-height:.9}.bottom-logo .print{background:#111;color:#fff;font:bold 10pt Arial,sans-serif;letter-spacing:2px;padding:0 2mm}
-.photo-sheet{margin-top:14px}.photo-sheet h2{font:bold 20px Georgia,serif;margin:0 0 12px}
-.photo-sheet-meta{font:13px Georgia,serif;margin-bottom:14px}.photo-sheet[hidden]{display:none}
-.note-photos{margin-top:12px;font:12px Arial}.note-photos h4{margin:6px 0}
+.total{display:flex;width:100%;max-width:100%;box-sizing:border-box;justify-content:flex-end;align-items:center;gap:14px;font:bold 17px Arial,sans-serif;margin-top:10px}
+.totalbox{border:1px solid #222;padding:12px;min-width:58mm;display:flex;justify-content:space-between}
+.party-row{display:grid;grid-template-columns:1fr 1fr;gap:8mm;align-items:start;margin-top:18mm;font:14px/1.5 Georgia,serif}.customer-block{min-width:0;overflow-wrap:anywhere}.foot{width:100%;min-width:0;font:14px/1.5 Georgia,serif}
+.services{min-width:0;overflow-wrap:anywhere;margin-top:12mm}
+.services{color:#123b70;font-weight:bold;font-size:16px}
+.services small{display:block;color:#111;font-size:13px;font-weight:normal;line-height:1.55;margin-top:5px}
+.signs{text-align:center;margin:0;min-width:0;width:100%}
+.signs img{display:block;margin:7px auto 3px;width:48mm;max-width:100%;height:32mm;object-fit:contain}
+.sign-name{font:bold 14px Georgia,serif;margin-top:0}
+.photo-sheet{margin-top:14px}
+.photo-sheet h2{font:bold 20px Georgia,serif;margin:0 0 12px}
+.photo-sheet-meta{font:13px Georgia,serif;margin-bottom:14px}
+.photo-sheet[hidden]{display:none}
+.note-photos{margin-top:12px;font:12px Arial}
+.note-photos h4{margin:6px 0}
 .photo-entry{margin:10px 0 16px;break-inside:avoid;page-break-inside:avoid}
 .note-photo-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
 .note-photo-grid img{width:10cm;height:13cm;max-width:100%;object-fit:contain;border:1px solid #bbb;padding:2px}
 .history button{margin:4px}
 @page{size:A4 portrait;margin:10mm}
 @media(max-width:600px){
- .grid{grid-template-columns:1fr}.paper{width:100%;min-height:auto;padding:0 8px}.paper-inner{padding-top:3mm}
- .head{grid-template-columns:minmax(0,1fr) 38mm;gap:3mm}.brand h2{font-size:17pt}.brand p{font-size:7pt}
- .recipient{font-size:7pt;padding-top:7mm}table{font-size:7pt}th,td{padding:1mm}
- .foot{grid-template-columns:1fr 1fr 1fr;gap:2mm;font-size:7pt}.services{font-size:9pt}.services small{font-size:6.5pt}
- .customer-sign{font-size:7pt;padding-top:18mm}.signs{font-size:7pt}.signs img{width:34mm;height:25mm}
- .bottom-logo{width:20mm;height:18mm}.bottom-logo .dr{font-size:20pt}.bottom-logo .print{font-size:7pt}.app{padding:8px}
-}
-@media print{
- body{background:#fff}.app{max-width:none;margin:0;padding:0}
- .bar,.formcard,.historycard{display:none!important}
- .paper{width:190mm;min-height:277mm;margin:0;padding:0;box-shadow:none;border-radius:0;overflow:hidden}
- .paper-inner{padding-top:4mm}.photo-sheet{page-break-before:always;break-before:page}
+ .grid{grid-template-columns:1fr}.head{display:block}.recipient{margin-top:15px}
+ .paper{padding:12px}.party-row{grid-template-columns:1fr 1fr;gap:10px;margin-top:28px}.signs{text-align:center}.signs img{margin-left:auto;margin-right:auto}.services{margin-top:18px}.app{padding:8px}
 }
 </style>
 <!-- PDF generator: requires internet on first use -->
@@ -97,39 +94,33 @@ th{text-align:center;font-weight:bold}td:nth-child(1){text-align:center}
  <div class="muted">Isi nama barang, kerusakan, perbaikan, dan biaya. Total dihitung otomatis.</div>
 </section>
 <section class="paper" id="paper">
- <div class="watermark" aria-hidden="true"></div>
- <div class="paper-inner">
-  <div class="head">
-   <div class="brand">
-    <h2>CV. DR Print</h2>
-    <p>Jalan Serai No. 17 RT.01 RW.02 Kel. Komet Banjarbaru</p>
-    <p>HP. 085100780159 (WhatsApp)</p>
-    <p>NPWP : 80.209.489.6-732.000</p>
-   </div>
-   <div class="recipient">
-    <div>Tanggal....................................</div><div class="line" id="pdate"></div>
-    <div>Kepada Yth.</div><div class="line" id="pcustomer"></div>
-    <div class="line" id="paddress"></div>
-   </div>
+ <div class="head">
+  <div class="brand">
+   <h2>CV. DR PRINT</h2>
+   <p>Jalan Serai No. 17 RT.01 RW.02 Kel. Komet Banjarbaru</p>
+   <p>Telp. 05115910581 - HP. 087816565399 / 085100780159 (WhatsApp)</p>
+   <p>NPWP : 80.209.489.6-732.000</p>
   </div>
-  <div class="meta">No Nota Service : <b id="pnumber"></b></div>
-  <div class="tablewrap">
-   <table>
-    <colgroup><col style="width:5%"><col style="width:17%"><col style="width:28%"><col style="width:31%"><col style="width:19%"></colgroup>
-    <thead><tr><th>No</th><th>Nama Barang</th><th>Kerusakan</th><th>Perbaikan</th><th>Jumlah</th></tr></thead>
-    <tbody id="pitems"></tbody>
-   </table>
-  </div>
-  <div class="total"><span class="total-label">TOTAL</span><div class="totalbox"><span>Rp.</span><span id="ptotal">0</span></div></div>
-  <div class="foot">
-   <div class="services">Kami Melayani:
-    <small>- Penjualan Printer/Komputer /ATK<br>- Isi Tinta Printer<br>- Pemasangan Infus<br>- Service Printer / Komputer / Laptop<br>- Instal Ulang Komputer / Laptop<br>- Rental Laptop / Printer</small>
-   </div>
-   <div class="customer-sign">Customer,<div class="customer-line"></div></div>
-   <div class="signs">Hormat Kami,<br><img src="stempel_ttd_dr_print.png" alt="Stempel dan tanda tangan CV. DR Print"></div>
+  <div class="recipient">Tanggal: <b id="pdate"></b></div>
+ </div>
+ <div class="meta">No Nota Service : <b id="pnumber"></b></div>
+ <div class="tablewrap">
+  <table>
+   <thead><tr><th style="width:5%">No</th><th style="width:19%">Nama Barang</th><th style="width:24%">Kerusakan</th><th style="width:32%">Perbaikan</th><th style="width:20%">Jumlah</th></tr></thead>
+   <tbody id="pitems"></tbody>
+  </table>
+ </div>
+ <div class="total"><span>TOTAL</span><div class="totalbox"><span>Rp.</span><span id="ptotal">0</span></div></div>
+ <div class="party-row">
+  <div class="customer-block">Kepada Yth.:<br><b id="pcustomer"></b><br><span id="paddress"></span></div>
+  <div class="signs">Hormat Kami,<br>
+   <img src="assets/stempel_ttd_dr_print.png" alt="Stempel dan tanda tangan CV. DR Print">
+   <div class="sign-name">Muhammad Alie Wibisono</div>
   </div>
  </div>
- <div class="bottom-logo" aria-label="Logo DR Print"><div class="dr">DR</div><div class="print">PRINT</div></div>
+ <div class="services">Kami Melayani:
+  <small>- Penjualan Printer/Komputer/ATK<br>- Isi Tinta Printer<br>- Pemasangan Infus<br>- Service Printer / Komputer / Laptop<br>- Instal Ulang Komputer / Laptop<br>- Rental Laptop / Printer</small>
+ </div>
 </section>
 <section class="paper photo-sheet" id="photoSheet" hidden>
  <h2>LAMPIRAN FOTO BARANG — CV. DR Print</h2>
@@ -237,33 +228,49 @@ function shareWA(){
  if(window.AndroidBridge){AndroidBridge.shareText(msg)}else{location.href='https://wa.me/?text='+encodeURIComponent(msg)}
 }
 async function printNota(){
- const btn=$('pdfButton');btn.disabled=true;btn.textContent='Membuat PDF...';let clone=null;
+ const btn=$('pdfButton');btn.disabled=true;btn.textContent='Membuat PDF...';
+ let clone=null;
  try{
   render();
-  if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan perangkat terhubung ke internet, lalu muat ulang aplikasi.');
+  if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan iPhone terhubung ke internet, lalu muat ulang aplikasi.');
   clone=document.createElement('div');
-  clone.style.cssText='position:fixed;left:-10000px;top:0;width:190mm;background:#fff;color:#111;z-index:-1;';
-  const paper=$('paper').cloneNode(true);
-  paper.style.cssText='display:block;position:relative;box-sizing:border-box;width:190mm;min-width:190mm;max-width:190mm;height:277mm;min-height:277mm;max-height:277mm;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:#fff;';
+  clone.style.cssText='display:block;position:fixed;left:0;top:0;z-index:2147483000;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;overflow:visible;background:#fff;color:#17202b;padding:0;margin:0;';
+  const paper=$('paper').cloneNode(true);paper.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;min-height:0;padding:0;margin:0;border-radius:0;overflow:visible;';
+  paper.querySelectorAll('.head,.brand,.recipient,.tablewrap,table,.total,.totalbox,.foot,.party-row,.customer-block,.services,.signs').forEach(el=>{el.style.boxSizing='border-box';el.style.minWidth='0';el.style.maxWidth='100%';});
+  paper.querySelectorAll('.tablewrap,table').forEach(el=>{el.style.width='100%';el.style.overflow='visible';});
+  paper.querySelectorAll('table').forEach(el=>{el.style.display='table';el.style.tableLayout='fixed';});
   clone.appendChild(paper);
   if(!$('photoSheet').hidden){
    const photos=$('photoSheet').cloneNode(true);photos.hidden=false;
-   photos.style.cssText='display:block;box-sizing:border-box;width:190mm;min-width:190mm;padding:0;margin:0;background:#fff;page-break-before:always;break-before:page;';
+   photos.style.cssText='width:190mm;padding:0;margin:0;border-radius:0;overflow:visible;page-break-before:always;break-before:page;';
    clone.appendChild(photos);
   }
   document.body.appendChild(clone);
-  await Promise.all(Array.from(clone.querySelectorAll('img')).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;setTimeout(resolve,8000)})));
-  const safeNo=($('number').value||'DR-PRINT').replace(/[^a-z0-9_-]/gi,'_'),filename='Nota-'+safeNo+'.pdf';
-  const blob=await html2pdf().set({
-   margin:[10,10,10,10],filename,image:{type:'jpeg',quality:.98},
-   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#fff',logging:false,windowWidth:794,windowHeight:1123,scrollX:0,scrollY:0},
-   jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}
-  }).from(clone).outputPdf('blob');
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  const imgs=Array.from(clone.querySelectorAll('img'));
+  await Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;setTimeout(resolve,8000)})));
+  const safeNo=($('number').value||'DR-PRINT').replace(/[^a-z0-9_-]/gi,'_');
+  const filename='Nota-'+safeNo+'.pdf';
+  const worker=html2pdf().set({
+   margin:[10,10,10,10],filename,
+   image:{type:'jpeg',quality:.96},
+   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:900,scrollX:0,scrollY:0},
+   jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+   pagebreak:{mode:['css','legacy']}
+  }).from(clone);
+  const blob=await worker.outputPdf('blob');
   const file=new File([blob],filename,{type:'application/pdf'});
-  if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'Nota Service CV. DR PRINT'});
-  else{const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);alert('PDF berhasil dibuat. Gunakan menu Bagikan jika unduhan tidak otomatis.');}
- }catch(err){if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));}
- finally{if(clone)clone.remove();btn.disabled=false;btn.textContent='Buat PDF / Bagikan';}
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+   await navigator.share({files:[file],title:'Nota Service CV. DR PRINT'});
+  }else{
+   const url=URL.createObjectURL(blob),a=document.createElement('a');
+   a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+   alert('PDF berhasil dibuat. Jika tidak terunduh otomatis, buka Safari lalu gunakan menu Bagikan.');
+  }
+ }catch(err){
+  if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));
+ }finally{if(clone && clone.parentNode)clone.parentNode.removeChild(clone);btn.disabled=false;btn.textContent='Buat PDF / Bagikan'}
 }
 $('date').value=today();$('number').value=autoNo();addItem();render();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));

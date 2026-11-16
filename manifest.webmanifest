@@ -1,15 +1,10 @@
 {
   "name": "Nota Service CV. DR Print",
   "short_name": "Nota DR Print",
-  "description": "Aplikasi nota service CV. DR Print, dapat digunakan offline setelah dipasang.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "any",
   "background_color": "#eef2f7",
   "theme_color": "#123b70",
-  "icons": [
-    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"}
-  ]
+  "description": "Aplikasi nota service CV. DR Print"
 }
