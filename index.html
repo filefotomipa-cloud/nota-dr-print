@@ -28,25 +28,25 @@ textarea{min-height:65px;resize:vertical}
 .photo-chip button{position:absolute;right:-5px;top:-5px;padding:3px 6px;border-radius:50%;background:#b42318}
 .itemhead{display:flex;justify-content:space-between;align-items:center;font-weight:bold}
 .muted{font-size:12px;color:#64748b}
-.paper{background:#fff;padding:10mm;border-radius:10px;overflow:hidden}
-.head{display:flex;justify-content:space-between;gap:12mm;align-items:flex-start}
+.paper{background:#fff;width:100%;max-width:190mm;min-width:0;padding:10mm;border-radius:10px;overflow:hidden}
+.head{display:flex;width:100%;min-width:0;justify-content:space-between;gap:6mm;align-items:flex-start}
 .brand{flex:1;min-width:0}
 .brand h2{font:bold 25px Georgia,serif;letter-spacing:.1px;margin:0 0 10px}
 .brand p{font:14px/1.42 Georgia,serif;margin:4px 0}
-.recipient{min-width:48mm;max-width:55mm;font:14px/1.55 Georgia,serif}
+.recipient{flex:0 0 43mm;width:43mm;min-width:0;max-width:43mm;overflow-wrap:anywhere;font:13px/1.5 Georgia,serif}
 .meta{margin:15mm 0 9px;font:bold 16px Georgia,serif}
-.tablewrap{overflow:visible;width:100%;min-width:0}
-table{width:100%;max-width:100%;border-collapse:collapse;min-width:0;table-layout:fixed;font:14px/1.35 Georgia,serif}
-th,td{border:1px solid #222;padding:9px 7px;vertical-align:top;overflow-wrap:anywhere}
+.tablewrap{display:block;overflow:hidden;width:100%;max-width:100%;min-width:0}
+table{display:table;width:100%;max-width:100%;border-collapse:collapse;min-width:0;table-layout:fixed;font:12px/1.3 Georgia,serif}
+th,td{border:1px solid #222;padding:7px 4px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
 th{text-align:center;font-weight:bold}td:nth-child(1){text-align:center}
 .total{display:flex;justify-content:flex-end;align-items:center;gap:14px;font:bold 17px Arial,sans-serif;margin-top:10px}
 .totalbox{border:1px solid #222;padding:12px;min-width:58mm;display:flex;justify-content:space-between}
-.foot{display:flex;width:100%;min-width:0;justify-content:space-between;align-items:flex-end;gap:8mm;margin-top:18mm;font:14px/1.5 Georgia,serif}
+.foot{display:flex;width:100%;max-width:100%;min-width:0;justify-content:space-between;align-items:flex-end;gap:6mm;margin-top:16mm;font:13px/1.45 Georgia,serif}
 .services{flex:1 1 55%;min-width:0;overflow-wrap:anywhere}
 .services{color:#123b70;font-weight:bold;font-size:16px}
 .services small{display:block;color:#111;font-size:13px;font-weight:normal;line-height:1.55;margin-top:5px}
-.signs{text-align:center;margin-top:0;flex:0 1 62mm;min-width:0;width:62mm}
-.signs img{display:block;margin:7px auto 3px;width:48mm;max-width:100%;height:32mm;object-fit:contain}
+.signs{text-align:center;margin-top:0;flex:0 0 52mm;min-width:0;width:52mm;max-width:52mm}
+.signs img{display:block;margin:7px auto 3px;width:43mm;max-width:100%;height:29mm;object-fit:contain}
 .sign-name{font:bold 14px Georgia,serif;margin-top:0}
 .photo-sheet{margin-top:14px}
 .photo-sheet h2{font:bold 20px Georgia,serif;margin:0 0 12px}
@@ -228,45 +228,70 @@ function shareWA(){
  if(window.AndroidBridge){AndroidBridge.shareText(msg)}else{location.href='https://wa.me/?text='+encodeURIComponent(msg)}
 }
 async function printNota(){
- const btn=$('pdfButton');btn.disabled=true;btn.textContent='Membuat PDF...';
- try{
-  render();
-  if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan iPhone terhubung ke internet, lalu muat ulang aplikasi.');
-  const clone=document.createElement('div');
-  clone.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;overflow:hidden;background:#fff;color:#17202b;padding:0;margin:0;';
-  const paper=$('paper').cloneNode(true);paper.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:0;min-height:0;padding:0;margin:0;border-radius:0;overflow:hidden;';
-  paper.querySelectorAll('.tablewrap,table,.foot,.brand,.recipient,.signs').forEach(el=>{el.style.minWidth='0';el.style.maxWidth='100%';});
-  paper.querySelectorAll('table').forEach(el=>{el.style.width='100%';el.style.tableLayout='fixed';});
-  clone.appendChild(paper);
-  if(!$('photoSheet').hidden){
-   const photos=$('photoSheet').cloneNode(true);photos.hidden=false;
-   photos.style.cssText='width:190mm;padding:0;margin:0;border-radius:0;overflow:visible;page-break-before:always;break-before:page;';
-   clone.appendChild(photos);
+  const btn=$('pdfButton');btn.disabled=true;btn.textContent='Membuat PDF...';
+  let clone=null;
+  try{
+    render();
+    if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan iPhone terhubung ke internet, lalu muat ulang aplikasi.');
+    clone=document.createElement('div');
+    clone.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;overflow:hidden;background:#fff;color:#17202b;padding:0;margin:0;';
+    const paper=$('paper').cloneNode(true);
+    paper.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;padding:0;margin:0;border-radius:0;overflow:hidden;background:#fff;';
+    paper.querySelectorAll('.head,.tablewrap,.foot').forEach(el=>{
+      el.style.width='100%';el.style.maxWidth='100%';el.style.minWidth='0';el.style.boxSizing='border-box';
+    });
+    paper.querySelectorAll('.brand').forEach(el=>{el.style.flex='1 1 0';el.style.minWidth='0';});
+    paper.querySelectorAll('.recipient').forEach(el=>{el.style.flex='0 0 43mm';el.style.width='43mm';el.style.minWidth='0';});
+    paper.querySelectorAll('table').forEach(el=>{
+      el.style.width='100%';el.style.maxWidth='100%';el.style.minWidth='0';el.style.tableLayout='fixed';
+      el.querySelectorAll('th,td').forEach(cell=>{
+        cell.style.maxWidth='0';cell.style.overflowWrap='anywhere';cell.style.wordBreak='break-word';
+      });
+    });
+    paper.querySelectorAll('.services').forEach(el=>{el.style.flex='1 1 0';el.style.minWidth='0';});
+    paper.querySelectorAll('.signs').forEach(el=>{el.style.flex='0 0 52mm';el.style.width='52mm';el.style.minWidth='0';});
+    clone.appendChild(paper);
+    if(!$('photoSheet').hidden){
+      const photos=$('photoSheet').cloneNode(true);photos.hidden=false;
+      photos.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;padding:0;margin:0;border-radius:0;overflow:hidden;page-break-before:always;break-before:page;';
+      photos.querySelectorAll('.note-photo-grid img').forEach(img=>{
+        img.style.width='10cm';img.style.height='13cm';img.style.maxWidth='100%';img.style.objectFit='contain';
+      });
+      clone.appendChild(photos);
+    }
+    clone.querySelectorAll('img').forEach(img=>{
+      const raw=img.getAttribute('src');
+      if(raw && !raw.startsWith('data:') && !raw.startsWith('blob:'))img.src=new URL(raw,location.href).href;
+    });
+    document.body.appendChild(clone);
+    await Promise.all(Array.from(clone.querySelectorAll('img')).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{
+      img.onload=resolve;img.onerror=resolve;setTimeout(resolve,8000);
+    })));
+    const safeNo=($('number').value||'DR-PRINT').replace(/[^a-z0-9_-]/gi,'_');
+    const filename='Nota-'+safeNo+'.pdf';
+    const blob=await html2pdf().set({
+      margin:[10,10,10,10],filename,
+      image:{type:'jpeg',quality:.96},
+      html2canvas:{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,windowWidth:794,windowHeight:1123,scrollX:0,scrollY:0},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy']}
+    }).from(clone).outputPdf('blob');
+    clone.remove();clone=null;
+    const file=new File([blob],filename,{type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'Nota Service CV. DR PRINT'});
+    }else{
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+      alert('PDF berhasil dibuat. Jika tidak terunduh otomatis, buka Safari lalu gunakan menu Bagikan.');
+    }
+  }catch(err){
+    if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));
+  }finally{
+    if(clone)clone.remove();
+    btn.disabled=false;btn.textContent='Buat PDF / Bagikan';
   }
-  const imgs=Array.from(clone.querySelectorAll('img'));
-  await Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;setTimeout(resolve,8000)})));
-  const safeNo=($('number').value||'DR-PRINT').replace(/[^a-z0-9_-]/gi,'_');
-  const filename='Nota-'+safeNo+'.pdf';
-  const worker=html2pdf().set({
-   margin:[10,10,10,10],filename,
-   image:{type:'jpeg',quality:.96},
-   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:900},
-   jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-   pagebreak:{mode:['css','legacy']}
-  }).from(clone);
-  const blob=await worker.outputPdf('blob');
-  const file=new File([blob],filename,{type:'application/pdf'});
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-   await navigator.share({files:[file],title:'Nota Service CV. DR PRINT'});
-  }else{
-   const url=URL.createObjectURL(blob),a=document.createElement('a');
-   a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
-   setTimeout(()=>URL.revokeObjectURL(url),60000);
-   alert('PDF berhasil dibuat. Jika tidak terunduh otomatis, buka Safari lalu gunakan menu Bagikan.');
-  }
- }catch(err){
-  if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));
- }finally{btn.disabled=false;btn.textContent='Buat PDF / Bagikan'}
 }
 $('date').value=today();$('number').value=autoNo();addItem();render();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
