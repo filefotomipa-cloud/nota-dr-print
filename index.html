@@ -233,15 +233,15 @@ async function printNota(){
   render();
   if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan iPhone terhubung ke internet, lalu muat ulang aplikasi.');
   const clone=document.createElement('div');
-  clone.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;overflow:visible;background:#fff;color:#17202b;padding:0;margin:0;';
-  const paper=$('paper').cloneNode(true);paper.style.cssText='display:block;box-sizing:border-box;width:190mm;max-width:190mm;min-width:190mm;min-height:0;padding:0;margin:0;border-radius:0;overflow:visible;';
+  clone.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;overflow:visible;background:#fff;color:#17202b;padding:0;margin:0;';
+  const paper=$('paper').cloneNode(true);paper.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;min-height:0;padding:0;margin:0;border-radius:0;overflow:visible;';
   paper.querySelectorAll('.head,.brand,.recipient,.tablewrap,table,.total,.totalbox,.foot,.services,.signs').forEach(el=>{el.style.boxSizing='border-box';el.style.minWidth='0';el.style.maxWidth='100%';});
   paper.querySelectorAll('.tablewrap,table').forEach(el=>{el.style.width='100%';el.style.overflow='visible';});
   paper.querySelectorAll('table').forEach(el=>{el.style.display='table';el.style.tableLayout='fixed';});
   clone.appendChild(paper);
   if(!$('photoSheet').hidden){
    const photos=$('photoSheet').cloneNode(true);photos.hidden=false;
-   photos.style.cssText='width:190mm;padding:0;margin:0;border-radius:0;overflow:visible;page-break-before:always;break-before:page;';
+   photos.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;padding:0;margin:0;border-radius:0;overflow:visible;page-break-before:always;break-before:page;';
    clone.appendChild(photos);
   }
   const imgs=Array.from(clone.querySelectorAll('img'));
@@ -249,11 +249,11 @@ async function printNota(){
   const safeNo=($('number').value||'DR-PRINT').replace(/[^a-z0-9_-]/gi,'_');
   const filename='Nota-'+safeNo+'.pdf';
   const worker=html2pdf().set({
-   margin:[10,10,10,10],filename,
+   margin:0,filename,
    image:{type:'jpeg',quality:.96},
-   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:900,scrollX:0,scrollY:0},
+   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:718,width:718,scrollX:0,scrollY:0},
    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-   pagebreak:{mode:['css','legacy']}
+   pagebreak:{mode:[]}
   }).from(clone);
   const blob=await worker.outputPdf('blob');
   const file=new File([blob],filename,{type:'application/pdf'});
