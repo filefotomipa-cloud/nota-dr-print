@@ -107,7 +107,7 @@ th{text-align:center;font-weight:bold}td:nth-child(1){text-align:center}
  <div class="meta">No Nota Service : <b id="pnumber"></b></div>
  <div class="tablewrap">
   <table>
-   <thead><tr><th style="width:5%">No</th><th style="width:19%">Nama Barang</th><th style="width:24%">Kerusakan</th><th style="width:32%">Perbaikan</th><th style="width:20%">Jumlah</th></tr></thead>
+   <thead><tr><th style="width:5%">No</th><th style="width:32%">Nama Barang</th><th style="width:43%">Perbaikan</th><th style="width:20%">Jumlah</th></tr></thead>
    <tbody id="pitems"></tbody>
   </table>
  </div>
@@ -192,7 +192,7 @@ function getItems(){
 }
 function render(){
  let rows=getItems(),sum=rows.reduce((a,x)=>a+x.h,0);
- $('pitems').innerHTML=rows.map((x,i)=>`<tr><td>${i+1}.</td><td>${esc(x.n)}</td><td>${esc(x.k).replace(/\n/g,'<br>')}</td><td>${esc(x.p).replace(/\n/g,'<br>')}</td><td style="text-align:right">Rp. ${fmt(x.h)}</td></tr>`).join('');
+ $('pitems').innerHTML=rows.map((x,i)=>`<tr><td>${i+1}.</td><td>${esc(x.n)}</td><td>${x.k?`<small>Kerusakan: ${esc(x.k).replace(/\n/g,'<br>')}</small><br>`:''}${esc(x.p).replace(/\n/g,'<br>')}</td><td style="text-align:right">Rp. ${fmt(x.h)}</td></tr>`).join('');
  $('ptotal').textContent=fmt(sum);$('pdate').textContent=$('date').value;
  $('pnumber').textContent=$('number').value;$('pcustomer').textContent=$('customer').value;$('paddress').textContent=$('address').value;
  let withPhotos=rows.map((x,i)=>({x,i})).filter(z=>z.x.photos&&z.x.photos.length);
@@ -231,28 +231,54 @@ async function printNota(){
  const btn=$('pdfButton');btn.disabled=true;btn.textContent='Membuat PDF...';
  try{
   render();
-  if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan iPhone terhubung ke internet, lalu muat ulang aplikasi.');
+  if(typeof window.html2pdf!=='function')throw new Error('Pustaka PDF belum termuat. Pastikan perangkat terhubung ke internet lalu muat ulang aplikasi.');
+  // Build a fixed A4 canvas independent of the phone's responsive/mobile CSS.
   const clone=document.createElement('div');
-  clone.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;overflow:visible;background:#fff;color:#17202b;padding:0;margin:0;';
-  const paper=$('paper').cloneNode(true);paper.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;min-height:0;padding:0;margin:0;border-radius:0;overflow:visible;';
-  // Force the original desktop nota layout in the PDF clone. On iPhone the
-  // mobile media query otherwise changes .head and .foot to display:block.
-  const forceStyle=(selector,styles)=>paper.querySelectorAll(selector).forEach(el=>Object.entries(styles).forEach(([k,v])=>el.style.setProperty(k,v,'important')));
-  forceStyle('.head',{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'flex-start',gap:'45px'});
-  forceStyle('.brand',{display:'block',flex:'1 1 auto',minWidth:'0',width:'auto'});
-  forceStyle('.recipient',{display:'block',flex:'0 0 185px',width:'185px',minWidth:'185px',maxWidth:'185px',marginTop:'0'});
-  forceStyle('.foot',{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'flex-end',gap:'30px',marginTop:'68px'});
-  forceStyle('.services',{display:'block',flex:'1 1 auto',minWidth:'0',width:'auto'});
-  forceStyle('.signs',{display:'block',flex:'0 0 235px',width:'235px',minWidth:'235px',maxWidth:'235px',marginTop:'0',textAlign:'center'});
-  // The stamp artwork already contains the printed name; avoid printing it twice.
-  forceStyle('.sign-name',{display:'none'});
-  paper.querySelectorAll('.head,.brand,.recipient,.tablewrap,table,.total,.totalbox,.foot,.services,.signs').forEach(el=>{el.style.boxSizing='border-box';el.style.minWidth=el.style.minWidth||'0';el.style.maxWidth='100%';});
-  paper.querySelectorAll('.tablewrap,table').forEach(el=>{el.style.width='100%';el.style.overflow='visible';});
-  paper.querySelectorAll('table').forEach(el=>{el.style.display='table';el.style.tableLayout='fixed';});
+  clone.style.cssText='position:relative;display:block;box-sizing:border-box;width:794px;height:1123px;min-width:794px;max-width:794px;margin:0;padding:0;background:#fff;overflow:hidden;color:#111;font-family:Georgia,serif;';
+  const paper=$('paper').cloneNode(true);
+  paper.style.cssText='position:relative;display:block;box-sizing:border-box;width:794px;height:1123px;min-width:794px;max-width:794px;margin:0;padding:42px 38px 30px;border:0;border-radius:0;box-shadow:none;background:#fff;overflow:hidden;';
+  // Reference layout: compact two-column header, compact table and three-part footer.
+  const wm=document.createElement('div');
+  wm.textContent='DR Print';
+  wm.style.cssText='position:absolute;z-index:0;left:100px;top:145px;font:bold italic 142px Arial,sans-serif;color:#e8e8e8;opacity:.55;transform:rotate(-10deg);pointer-events:none;white-space:nowrap;';
+  paper.prepend(wm);
+  const set=(selector,styles)=>paper.querySelectorAll(selector).forEach(el=>Object.entries(styles).forEach(([k,v])=>el.style.setProperty(k,v,'important')));
+  paper.querySelectorAll('.head,.meta,.tablewrap,.total,.foot').forEach(el=>{el.style.position='relative';el.style.zIndex='1';el.style.boxSizing='border-box';});
+  set('.head',{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'flex-start',gap:'36px',margin:'0',padding:'0'});
+  set('.brand',{display:'block',flex:'1 1 auto',width:'auto',minWidth:'0'});
+  set('.brand h2',{font:'bold 27px Georgia,serif',margin:'0 0 5px',textDecoration:'underline'});
+  set('.brand p',{font:'13px/1.35 Georgia,serif',margin:'2px 0'});
+  set('.recipient',{display:'block',flex:'0 0 190px',width:'190px',minWidth:'190px',maxWidth:'190px',margin:'26px 0 0',font:'12px/1.55 Georgia,serif'});
+  const rec=paper.querySelector('.recipient');
+  if(rec){rec.innerHTML=`Tanggal ${esc($('date').value||'')}<br><br>Kepada Yth. ${esc($('customer').value||'')}<br>${esc($('address').value||'')}<br><br>........................................`}
+  const companyTitle=paper.querySelector('.brand h2');if(companyTitle)companyTitle.textContent='CV. DR Print';
+  set('.meta',{font:'13px Georgia,serif',fontWeight:'normal',margin:'22px 0 5px',padding:'0'});
+  set('.tablewrap',{display:'block',width:'100%',minWidth:'0',maxWidth:'100%',overflow:'visible',margin:'0'});
+  set('table',{display:'table',width:'100%',minWidth:'0',maxWidth:'100%',tableLayout:'fixed',borderCollapse:'collapse',font:'12px/1.3 Georgia,serif'});
+  set('th,td',{border:'1px solid #222',padding:'6px 7px',verticalAlign:'middle',overflowWrap:'anywhere'});
+  set('th',{textAlign:'center',fontWeight:'bold'});
+  set('.total',{display:'flex',width:'100%',justifyContent:'flex-end',alignItems:'center',gap:'12px',font:'bold 13px Arial,sans-serif',margin:'0',padding:'0'});
+  set('.totalbox',{display:'flex',justifyContent:'space-between',gap:'24px',minWidth:'92px',padding:'5px 8px',border:'1px solid #222'});
+  // Match the reference footer: services at left, customer sign in center, company stamp at right.
+  const foot=paper.querySelector('.foot');
+  if(foot){
+   const customer=document.createElement('div');customer.className='customer-sign';
+   customer.innerHTML='Customer,<br><br><br><br>................................';
+   foot.insertBefore(customer,foot.querySelector('.signs'));
+  }
+  set('.foot',{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'flex-start',gap:'24px',margin:'22px 0 0',padding:'0',font:'11px/1.35 Georgia,serif'});
+  set('.services',{display:'block',flex:'1 1 38%',width:'38%',minWidth:'0',font:'bold 13px Georgia,serif',color:'#123b70'});
+  set('.services small',{display:'block',font:'10px/1.25 Georgia,serif',color:'#111',marginTop:'3px'});
+  set('.customer-sign',{display:'block',flex:'0 0 25%',width:'25%',minWidth:'0',textAlign:'center',font:'11px Georgia,serif',marginTop:'0'});
+  set('.signs',{display:'block',flex:'0 0 27%',width:'27%',minWidth:'0',maxWidth:'27%',margin:'0',textAlign:'center',font:'11px Georgia,serif'});
+  set('.signs img',{display:'block',width:'125px',height:'90px',maxWidth:'100%',objectFit:'contain',margin:'5px auto 0'});
+  set('.sign-name',{display:'none'});
+  // Remove screen-only spacing and force the exact 4-column table.
+  paper.querySelectorAll('table tr').forEach(tr=>tr.style.pageBreakInside='avoid');
   clone.appendChild(paper);
   if(!$('photoSheet').hidden){
    const photos=$('photoSheet').cloneNode(true);photos.hidden=false;
-   photos.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;padding:0;margin:0;border-radius:0;overflow:visible;page-break-before:always;break-before:page;';
+   photos.style.cssText='display:block;box-sizing:border-box;width:794px;min-width:794px;max-width:794px;min-height:1123px;padding:42px 38px;margin:0;border:0;border-radius:0;overflow:hidden;page-break-before:always;break-before:page;';
    clone.appendChild(photos);
   }
   const imgs=Array.from(clone.querySelectorAll('img'));
@@ -261,8 +287,8 @@ async function printNota(){
   const filename='Nota-'+safeNo+'.pdf';
   const worker=html2pdf().set({
    margin:0,filename,
-   image:{type:'jpeg',quality:.96},
-   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:718,width:718,scrollX:0,scrollY:0},
+   image:{type:'jpeg',quality:.98},
+   html2canvas:{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,width:794,height:1123,windowWidth:794,windowHeight:1123,scrollX:0,scrollY:0},
    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
    pagebreak:{mode:[]}
   }).from(clone);
@@ -271,14 +297,12 @@ async function printNota(){
   if(navigator.canShare && navigator.canShare({files:[file]})){
    await navigator.share({files:[file],title:'Nota Service CV. DR PRINT'});
   }else{
-   const url=URL.createObjectURL(blob),a=document.createElement('a');
-   a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
    setTimeout(()=>URL.revokeObjectURL(url),60000);
-   alert('PDF berhasil dibuat. Jika tidak terunduh otomatis, buka Safari lalu gunakan menu Bagikan.');
+   alert('PDF berhasil dibuat. Jika tidak terunduh otomatis, gunakan menu Bagikan.');
   }
- }catch(err){
-  if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));
- }finally{btn.disabled=false;btn.textContent='Buat PDF / Bagikan'}
+ }catch(err){if(err.name!=='AbortError')alert('PDF belum berhasil dibuat: '+(err.message||err));}
+ finally{btn.disabled=false;btn.textContent='Buat PDF / Bagikan'}
 }
 $('date').value=today();$('number').value=autoNo();addItem();render();
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
