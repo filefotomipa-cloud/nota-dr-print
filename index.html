@@ -235,7 +235,18 @@ async function printNota(){
   const clone=document.createElement('div');
   clone.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;overflow:visible;background:#fff;color:#17202b;padding:0;margin:0;';
   const paper=$('paper').cloneNode(true);paper.style.cssText='display:block;box-sizing:border-box;width:718px;max-width:718px;min-width:718px;min-height:0;padding:0;margin:0;border-radius:0;overflow:visible;';
-  paper.querySelectorAll('.head,.brand,.recipient,.tablewrap,table,.total,.totalbox,.foot,.services,.signs').forEach(el=>{el.style.boxSizing='border-box';el.style.minWidth='0';el.style.maxWidth='100%';});
+  // Force the original desktop nota layout in the PDF clone. On iPhone the
+  // mobile media query otherwise changes .head and .foot to display:block.
+  const forceStyle=(selector,styles)=>paper.querySelectorAll(selector).forEach(el=>Object.entries(styles).forEach(([k,v])=>el.style.setProperty(k,v,'important')));
+  forceStyle('.head',{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'flex-start',gap:'45px'});
+  forceStyle('.brand',{display:'block',flex:'1 1 auto',minWidth:'0',width:'auto'});
+  forceStyle('.recipient',{display:'block',flex:'0 0 185px',width:'185px',minWidth:'185px',maxWidth:'185px',marginTop:'0'});
+  forceStyle('.foot',{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'flex-end',gap:'30px',marginTop:'68px'});
+  forceStyle('.services',{display:'block',flex:'1 1 auto',minWidth:'0',width:'auto'});
+  forceStyle('.signs',{display:'block',flex:'0 0 235px',width:'235px',minWidth:'235px',maxWidth:'235px',marginTop:'0',textAlign:'center'});
+  // The stamp artwork already contains the printed name; avoid printing it twice.
+  forceStyle('.sign-name',{display:'none'});
+  paper.querySelectorAll('.head,.brand,.recipient,.tablewrap,table,.total,.totalbox,.foot,.services,.signs').forEach(el=>{el.style.boxSizing='border-box';el.style.minWidth=el.style.minWidth||'0';el.style.maxWidth='100%';});
   paper.querySelectorAll('.tablewrap,table').forEach(el=>{el.style.width='100%';el.style.overflow='visible';});
   paper.querySelectorAll('table').forEach(el=>{el.style.display='table';el.style.tableLayout='fixed';});
   clone.appendChild(paper);
